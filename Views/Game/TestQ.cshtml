@@ -1,0 +1,41 @@
+﻿<script src="~/AppScripts/question.js" type="text/javascript" ></script>
+@{
+    ViewBag.Title = "Test Questions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Play</h2>
+<div id="lastq"></div>
+<input type="button" id="genQ" value="New Question" onclick="GenerateManyQs();" />
+<table id="qs" style="border:1px solid black" border="1">
+    <thead>
+        <tr><td>Num1</td><td>Num2</td><td>Op</td><td>Ans</td></tr>
+    </thead>
+    <tbody id="qsbody">
+
+        <tr></tr>
+    </tbody>
+</table>
+<script>
+    var lastQuestion = null;
+    function CreateQuestion() {
+        var q = new Question();
+        q.init();
+        if (lastQuestion) {
+            var tbody = document.getElementById("qsbody");
+            var row = tbody.insertRow(0);
+            row.innerHTML = '<td>' + lastQuestion.num1.toString() + '</td>'
+                + '<td>' + lastQuestion.num2.toString() + '</td>'
+                + '<td>' + ops[lastQuestion.op].toString() + '</td>'
+                + '<td>' + lastQuestion.ans.toString() + '</td>';
+
+        }
+        document.getElementById("lastq").innerText = q.toString();
+        lastQuestion = q;
+    }
+    function GenerateManyQs() {
+        for (var i = 0; i <= 65000; i++) {
+            CreateQuestion();
+        }
+    }
+</script>

@@ -1,0 +1,85 @@
+﻿<script src="~/AppScripts/question.js" type="text/javascript" ></script>
+<script src="~/AppScripts/wall.js" type="text/javascript" ></script>
+<script src="~/AppScripts/ball.js" type="text/javascript" ></script>
+<script src="~/AppScripts/game.js" type="text/javascript" ></script>
+<style type="text/css">
+    #start {
+        width:30px;
+        height:450px;
+        background-color:aqua;
+        float:left;
+        }
+    #gameArea {
+        width:720px;
+        height:450px;
+        background-color:azure;
+        float:left;
+
+    }
+    #wall {
+        width: 65px;
+        height: 450px;
+        background-image: url('/Content/net.jpg');
+        float:left;
+        }
+    .ball {
+        border-radius: 35px;
+        position: fixed;
+        background-color: lightblue;
+        height:55px;
+        width:55px;
+        text-align:center;
+        vertical-align:middle;
+        color:black;
+        font-weight:bold;
+        border-style:outset;
+        border-color:transparent;
+    }
+    #solution, #bStart {
+        font-size:larger;
+        padding-left:20px;
+        vertical-align:middle;
+        height:30px;
+        font-family:Georgia;
+        font-weight:bolder;
+     }
+</style>
+@{
+    ViewBag.Title = "Play";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Play</h2>
+<div class="ball" style="display:none;top:0px;left:770px;">test</div>
+<input type="text" id="solution" />
+<input type="button" id="bStart" onclick="Start(this);" value="Start" />
+<br />
+<div id="start"></div>
+<div id="gameArea"></div>
+<div id="wall"></div>
+<script type="text/javascript">
+    var counter = 0;
+    function Start(sender) {
+        var startWall = document.getElementById("start");
+        var wall = document.getElementById("wall");
+        var ballHeight = document.getElementsByClassName("ball")[0].style.height;
+        var sendFrequency = 5000;
+        var game = new Game(startWall, wall, ballHeight, sendFrequency);
+        document.onkeyup = function (evt) { handleKeyUp(evt,game); };
+        game.start();
+    }
+    function handleKeyUp(evt,game) {
+        //console.log(evt);
+        //console.log(game);
+        document.getElementById("solution").focus();
+        if (evt.keyCode == 13) {
+            //console.log(document.getElementById("solution").value);
+            var answer = parseInt(document.getElementById("solution").value);
+            if (!isNaN(answer)) {
+                game.checkSolution(answer);
+            }
+            document.getElementById("solution").value = "";
+            document.getElementById("solution").focus();
+        }
+    }
+</script>
