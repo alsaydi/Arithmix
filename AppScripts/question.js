@@ -1,5 +1,5 @@
 ﻿var QLOG = false;
-var ops = ['+','-','*','/','+','+','-'];
+var ops = ['+','-','x','/','+','+','-'];
 function Question(){
     this.num1 = 0;
     this.num2 = 0;

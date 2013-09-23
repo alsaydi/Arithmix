@@ -35,7 +35,7 @@
         border-style:outset;
         border-color:transparent;
     }
-    #solution, #bStart {
+    #solution, #bStart, #bStop, #bPause {
         font-size:larger;
         padding-left:20px;
         vertical-align:middle;
@@ -43,6 +43,15 @@
         font-family:Georgia;
         font-weight:bolder;
      }
+    #missed, #correct {
+        float:left;
+        width:20%;
+        border:1px solid black;
+        margin:5px;
+    }
+    tr{
+        border-bottom:1px solid black;
+    }
 </style>
 @{
     ViewBag.Title = "Play";
@@ -53,20 +62,69 @@
 <div class="ball" style="display:none;top:0px;left:770px;">test</div>
 <input type="text" id="solution" />
 <input type="button" id="bStart" onclick="Start(this);" value="Start" />
+<input type="button" id="bPause" onclick="Start(this);" value="Pause" />
+<input type="button" id="bStop" onclick="Stop(this);" value="Stop" />
 <br />
 <div id="start"></div>
 <div id="gameArea"></div>
 <div id="wall"></div>
+<hr style="clear:both;" />
+<table id="missed">
+    <caption>Missed Questions</caption>
+    <thead>
+        <tr><th>Num1</th><th>Num2</th><th>Op</th><th>Ans</th></tr>
+    </thead>
+</table>
+<table id="correct">
+    <caption>Correct Questions</caption>
+    <thead>
+        <tr><th>Num1</th><th>Num2</th><th>Op</th><th>Ans</th></tr>
+    </thead>
+</table>
 <script type="text/javascript">
-    var counter = 0;
+    var theGame = null;
     function Start(sender) {
         var startWall = document.getElementById("start");
         var wall = document.getElementById("wall");
         var ballHeight = document.getElementsByClassName("ball")[0].style.height;
         var sendFrequency = 5000;
-        var game = new Game(startWall, wall, ballHeight, sendFrequency);
-        document.onkeyup = function (evt) { handleKeyUp(evt,game); };
-        game.start();
+        theGame = new Game(startWall, wall, ballHeight, sendFrequency);
+        document.onkeyup = function (evt) { handleKeyUp(evt,theGame); };
+        theGame.start();
+    }
+    function showResult() {
+        for (var i = 0; i < theGame.collidedBalls.length; i++) {
+            var q = theGame.collidedBalls[i].question;
+            var table = document.getElementById("missed");
+            var row = table.insertRow(1);
+            row.innerHTML = '<td>' + q.num1.toString() + '</td>'
+                + '<td>' + q.num2.toString() + '</td>'
+                + '<td>' + ops[q.op].toString() + '</td>'
+                + '<td>' + q.ans.toString() + '</td>';
+        }
+        for (var i = 0; i < theGame.solvedBalls.length; i++) {
+            var q = theGame.solvedBalls[i].question;
+            var table = document.getElementById("correct");
+            var row = table.insertRow(1);
+            row.innerHTML = '<td>' + q.num1.toString() + '</td>'
+                + '<td>' + q.num2.toString() + '</td>'
+                + '<td>' + ops[q.op].toString() + '</td>'
+                + '<td>' + q.ans.toString() + '</td>';
+        }
+    }
+    
+    function Stop(sender) {
+        theGame.stopGame();
+        showResult();
+    }
+    function Pause(sender) {
+        if (theGame.pause) {
+            theGame.resumeGame();
+            sender.value = "Pause";
+        } else {
+            theGame.pauseGame();
+            sender.value = "Resume";
+        }
     }
     function handleKeyUp(evt,game) {
         //console.log(evt);
@@ -76,7 +134,11 @@
             //console.log(document.getElementById("solution").value);
             var answer = parseInt(document.getElementById("solution").value);
             if (!isNaN(answer)) {
-                game.checkSolution(answer);
+                if (game.checkSolution(answer)) {
+
+                } else {
+
+                }
             }
             document.getElementById("solution").value = "";
             document.getElementById("solution").focus();

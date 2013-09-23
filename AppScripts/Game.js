@@ -1,5 +1,6 @@
 ﻿var GLOG = false;
-function Game(startWall, endWall, ballHeight,ballsFrequency) {
+function Game(startWall, endWall, ballHeight, ballsFrequency
+    , correctCallback , incorrectCallback) {
     this.startWallElement = startWall;
     this.endWallElement = endWall;
     this.startX = this.startWallElement.getBoundingClientRect().left;
@@ -10,12 +11,37 @@ function Game(startWall, endWall, ballHeight,ballsFrequency) {
     this.ballsFrequency = ballsFrequency;
     this.travelingBalls = new Array();
     this.solvedBalls = new Array();
+    this.destX = this.endWallElement.getBoundingClientRect().left;
+    this.collidedBalls = new Array();
+    this.correctCallBack = correctCallback;
+    this.incorrectCallback = incorrectCallback;
+    this.pause = false;
+    this.stop = false;
 }
 Game.prototype.start = function () {
     this.sendBall();
     var startIntervalId = setInterval(function (pGame) {
+        if (pGame.stop) {
+            clearInterval(startIntervalId);
+        }
         pGame.sendBall();
     }, this.ballsFrequency, this);
+    var repaintSpeed = 1;
+    var moveIntervalId = setInterval(function (pGame) {
+        if (pGame.stop) {
+            clearInterval(moveIntervalId);
+        }
+        for (var i = 0; i < pGame.travelingBalls.length; i++) {
+            var ball = pGame.travelingBalls[i];
+            if (ball && ball.isTraveling() && !ball.isSolved()) {
+                var collided = ball.moveTo(pGame.destX);
+                if (collided) {
+                    pGame.collidedBalls.push(ball);
+                    pGame.travelingBalls.splice(i, 1);
+                }
+            }
+        }
+    }, repaintSpeed, this);
 }
 Game.prototype.sendBall = function(){
     var b = document.createElement("div");
@@ -47,21 +73,35 @@ Game.prototype.sendBall = function(){
     question.init();
     var qtxt = question.num1.toString() +"<br />"+ ops[question.op].toString() +"<br />"+ question.num2.toString();
     b.innerHTML = qtxt;
-    var destX = document.getElementById("wall").getBoundingClientRect().left;
+    var destX = this.endWallElement.getBoundingClientRect().left;
     var pixelsPerTimeUnit = 1;
     var repaintSpeed = 20;
     var ball = new Ball(b.id, x, y, pixelsPerTimeUnit, repaintSpeed, new Wall(10, destX), question);
-    ball.travel();
+    //ball.travel();
     this.travelingBalls.push(ball);
+    var collided = ball.moveTo(this.destX);
 }
 Game.prototype.checkSolution = function (answer) {
+    var correct = false;
     for (var i = 0; i < this.travelingBalls.length; i++) {
         if (this.travelingBalls[i].isTraveling()) {
             if (this.travelingBalls[i].checkSolution(answer)
                 && !this.travelingBalls[i].isSolved()) {
                 this.solvedBalls.push(this.travelingBalls[i]);
                 this.travelingBalls[i].solve();
+                this.travelingBalls.splice(i, 1);
+                correct = true;
             }
         }
     }
+    return correct;
+}
+Game.prototype.pauseGame = function () {
+    this.pause = true;
+}
+Game.prototype.resumeGame = function () {
+    this.pause = false;
+}
+Game.prototype.stopGame = function () {
+    this.stop = true;
 }

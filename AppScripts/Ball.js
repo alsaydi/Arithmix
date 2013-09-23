@@ -9,7 +9,7 @@ function Ball(elementId, initialX, initialY, pixelPerTimeUnit, repaintSpeed, wal
     this.solved = false;
     this.pause = false;
     this.htmlElement.ballObject = this;
-    this.traveling = false;
+    this.traveling = true;
 //    this.htmlElement.onkeypress = function (sender) { alert(sender);console.log(sender);sender.ballObject.checkSolution(); };
 }
 Ball.prototype.announceCollision = function () {
@@ -26,7 +26,7 @@ Ball.prototype.moveTo = function (x) {
     var collided = newX >= this.wall.getX();
     return collided;
 }
-Ball.prototype.travel = function(){
+/*Ball.prototype.travel = function(){
     var travelIntervalId = setInterval(function (pBall) {
         if (!pBall.isSolved()) {
             pBall.traveling = true;
@@ -45,7 +45,7 @@ Ball.prototype.travel = function(){
             }
         }
     }, this.repaintSpeed, this);
-}
+}*/
 Ball.prototype.solve = function () {
     if (BLOG) {
         console.log(this.elementId + " solved.");
