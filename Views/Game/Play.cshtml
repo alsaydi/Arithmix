@@ -39,10 +39,15 @@
         font-size:larger;
         padding-left:20px;
         vertical-align:middle;
-        height:30px;
+        height:60px;
         font-family:Georgia;
         font-weight:bolder;
      }
+    #solution {
+        width:520px;
+        letter-spacing:2px;
+        font-size:x-large;
+    }
     #missed, #correct {
         float:left;
         width:20%;
@@ -62,9 +67,10 @@
 }
 
 <h2>Play</h2>
+<input type="button" id="bStart" onclick="Start(this);" value="Start" accesskey="S" />
+<input type="button" id="bPause" onclick="Pause(this);" value="Pause" disabled="disabled" accesskey="P" />
 <input type="text" id="solution" /><span id="feedback"></span>
-<input type="button" id="bStart" onclick="Start(this);" value="Start" />
-<input type="button" id="bPause" onclick="Pause(this);" value="Pause" disabled="disabled" />
+<br />
 <br />
 <div id="start"></div>
 <div id="gameArea"></div>
@@ -106,6 +112,7 @@
             theGame.start();
             sender.value = "Stop";
             document.getElementById("bPause").disabled = false;
+            document.getElementById("solution").focus();
         }
     }
     function showResult() {
