@@ -1,6 +1,5 @@
 ﻿var GLOG = false;
-function Game(startWall, endWall, ballHeight, ballsFrequency
-    , correctCallback , incorrectCallback) {
+function Game(startWall, endWall, ballHeight, correctCallback , incorrectCallback) {
     this.startWallElement = startWall;
     this.endWallElement = endWall;
     this.startX = this.startWallElement.getBoundingClientRect().left;
@@ -8,7 +7,7 @@ function Game(startWall, endWall, ballHeight, ballsFrequency
     this.startWallHeight = Math.round(this.startWallElement.getBoundingClientRect().height);
     this.ballHeight = ballHeight;
     this.ballCounter = 0;
-    this.ballsFrequency = ballsFrequency;
+    this.ballsFrequency = 5000;
     this.travelingBalls = new Array();
     this.solvedBalls = new Array();
     this.destX = this.endWallElement.getBoundingClientRect().left;
@@ -23,10 +22,11 @@ Game.prototype.start = function () {
     var startIntervalId = setInterval(function (pGame) {
         if (pGame.stop) {
             clearInterval(startIntervalId);
+        } else {
+            pGame.sendBall();
         }
-        pGame.sendBall();
     }, this.ballsFrequency, this);
-    var repaintSpeed = 1;
+    var repaintSpeed = 20;
     var moveIntervalId = setInterval(function (pGame) {
         if (pGame.stop) {
             clearInterval(moveIntervalId);

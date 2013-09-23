@@ -24,7 +24,7 @@
         }
     .ball {
         border-radius: 35px;
-        position: fixed;
+        position: absolute;
         background-color: lightblue;
         height:55px;
         width:55px;
@@ -49,8 +49,11 @@
         border:1px solid black;
         margin:5px;
     }
-    tr{
-        border-bottom:1px solid black;
+    .qrow {
+        text-align:left;
+    }
+    #feedback {
+        font-size:xx-large;
     }
 </style>
 @{
@@ -59,11 +62,9 @@
 }
 
 <h2>Play</h2>
-<div class="ball" style="display:none;top:0px;left:770px;">test</div>
-<input type="text" id="solution" />
+<input type="text" id="solution" /><span id="feedback"></span>
 <input type="button" id="bStart" onclick="Start(this);" value="Start" />
-<input type="button" id="bPause" onclick="Start(this);" value="Pause" />
-<input type="button" id="bStop" onclick="Stop(this);" value="Stop" />
+<input type="button" id="bPause" onclick="Pause(this);" value="Pause" disabled="disabled" />
 <br />
 <div id="start"></div>
 <div id="gameArea"></div>
@@ -72,31 +73,47 @@
 <table id="missed">
     <caption>Missed Questions</caption>
     <thead>
-        <tr><th>Num1</th><th>Num2</th><th>Op</th><th>Ans</th></tr>
+        <tr class="qrow"><th>Num1</th><th>Num2</th><th>Op</th><th>Ans</th></tr>
     </thead>
 </table>
 <table id="correct">
     <caption>Correct Questions</caption>
     <thead>
-        <tr><th>Num1</th><th>Num2</th><th>Op</th><th>Ans</th></tr>
+        <tr class="qrow"><th>Num1</th><th>Num2</th><th>Op</th><th>Ans</th></tr>
     </thead>
 </table>
 <script type="text/javascript">
     var theGame = null;
     function Start(sender) {
-        var startWall = document.getElementById("start");
-        var wall = document.getElementById("wall");
-        var ballHeight = document.getElementsByClassName("ball")[0].style.height;
-        var sendFrequency = 5000;
-        theGame = new Game(startWall, wall, ballHeight, sendFrequency);
-        document.onkeyup = function (evt) { handleKeyUp(evt,theGame); };
-        theGame.start();
+        if (theGame) {
+            theGame.stopGame();
+            showResult();
+            theGame.travelingBalls = [];
+            var balls = document.getElementsByClassName("ball");
+            while (balls && balls.length > 0) {
+                document.body.removeChild(balls[0]);
+            }
+            theGame = null;
+            sender.value = "Start";
+            document.getElementById("bPause").disabled = true;
+        } else {
+            var startWall = document.getElementById("start");
+            var wall = document.getElementById("wall");
+            var ballHeight = 55;//document.getElementsByClassName("ball")[0].style.height;
+            var sendFrequency = 2000;
+            theGame = new Game(startWall, wall, ballHeight, sendFrequency);
+            document.onkeyup = function (evt) { handleKeyUp(evt, theGame); };
+            theGame.start();
+            sender.value = "Stop";
+            document.getElementById("bPause").disabled = false;
+        }
     }
     function showResult() {
         for (var i = 0; i < theGame.collidedBalls.length; i++) {
             var q = theGame.collidedBalls[i].question;
             var table = document.getElementById("missed");
             var row = table.insertRow(1);
+            row.className = "qrow";
             row.innerHTML = '<td>' + q.num1.toString() + '</td>'
                 + '<td>' + q.num2.toString() + '</td>'
                 + '<td>' + ops[q.op].toString() + '</td>'
@@ -106,18 +123,17 @@
             var q = theGame.solvedBalls[i].question;
             var table = document.getElementById("correct");
             var row = table.insertRow(1);
+            row.className = "qrow";
             row.innerHTML = '<td>' + q.num1.toString() + '</td>'
                 + '<td>' + q.num2.toString() + '</td>'
                 + '<td>' + ops[q.op].toString() + '</td>'
                 + '<td>' + q.ans.toString() + '</td>';
         }
-    }
-    
-    function Stop(sender) {
-        theGame.stopGame();
-        showResult();
-    }
+    }    
     function Pause(sender) {
+        if (!theGame) {
+            return;
+        }
         if (theGame.pause) {
             theGame.resumeGame();
             sender.value = "Pause";
@@ -135,9 +151,11 @@
             var answer = parseInt(document.getElementById("solution").value);
             if (!isNaN(answer)) {
                 if (game.checkSolution(answer)) {
-
+                    document.getElementById("feedback").innerText = "\u2713";
+                    document.getElementById("feedback").style.color = "green";
                 } else {
-
+                    document.getElementById("feedback").innerText = "\u2717";
+                    document.getElementById("feedback").style.color = "red";
                 }
             }
             document.getElementById("solution").value = "";
